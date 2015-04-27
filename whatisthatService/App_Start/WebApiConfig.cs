@@ -13,30 +13,30 @@ namespace whatisthatService
         public static void Register()
         {
             // Use this class to set configuration options for your mobile service
-            ConfigOptions options = new ConfigOptions();
+            var options = new ConfigOptions();
 
             // Use this class to set WebAPI configuration options
-            HttpConfiguration config = ServiceConfig.Initialize(new ConfigBuilder(options));
+            var config = ServiceConfig.Initialize(new ConfigBuilder(options));
 
             // To display errors in the browser during development, uncomment the following
             // line. Comment it out again when you deploy your service for production use.
             // config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
             
-            Database.SetInitializer(new whatisthatInitializer());
+            Database.SetInitializer(new WhatisthatInitializer());
         }
     }
 
-    public class whatisthatInitializer : ClearDatabaseSchemaIfModelChanges<whatisthatContext>
+    public class WhatisthatInitializer : ClearDatabaseSchemaIfModelChanges<WhatisthatContext>
     {
-        protected override void Seed(whatisthatContext context)
+        protected override void Seed(WhatisthatContext context)
         {
-            List<TodoItem> todoItems = new List<TodoItem>
+            var todoItems = new List<TodoItem>
             {
                 new TodoItem { Id = Guid.NewGuid().ToString(), Text = "First item", Complete = false },
                 new TodoItem { Id = Guid.NewGuid().ToString(), Text = "Second item", Complete = false },
             };
 
-            foreach (TodoItem todoItem in todoItems)
+            foreach (var todoItem in todoItems)
             {
                 context.Set<TodoItem>().Add(todoItem);
             }

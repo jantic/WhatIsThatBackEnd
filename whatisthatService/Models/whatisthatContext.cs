@@ -7,7 +7,7 @@ using whatisthatService.DataObjects;
 
 namespace whatisthatService.Models
 {
-    public class whatisthatContext : DbContext
+    public class WhatisthatContext : DbContext
     {
         // You can add custom code to this file. Changes will not be overwritten.
         // 
@@ -19,9 +19,9 @@ namespace whatisthatService.Models
         // To enable Entity Framework migrations in the cloud, please ensure that the 
         // service name, set by the 'MS_MobileServiceName' AppSettings in the local 
         // Web.config, is the same as the service name when hosted in Azure.
-        private const string connectionStringName = "Name=MS_TableConnectionString";
+        private const string ConnectionStringName = "Name=MS_TableConnectionString";
 
-        public whatisthatContext() : base(connectionStringName)
+        public WhatisthatContext() : base(ConnectionStringName)
         {
         } 
 
@@ -29,7 +29,7 @@ namespace whatisthatService.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            string schema = ServiceSettingsDictionary.GetSchemaName();
+            var schema = ServiceSettingsDictionary.GetSchemaName();
             if (!string.IsNullOrEmpty(schema))
             {
                 modelBuilder.HasDefaultSchema(schema);

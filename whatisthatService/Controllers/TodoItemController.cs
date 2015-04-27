@@ -14,7 +14,7 @@ namespace whatisthatService.Controllers
         protected override void Initialize(HttpControllerContext controllerContext)
         {
             base.Initialize(controllerContext);
-            whatisthatContext context = new whatisthatContext();
+            var context = new WhatisthatContext();
             DomainManager = new EntityDomainManager<TodoItem>(context, Request, Services);
         }
 
@@ -39,7 +39,7 @@ namespace whatisthatService.Controllers
         // POST tables/TodoItem
         public async Task<IHttpActionResult> PostTodoItem(TodoItem item)
         {
-            TodoItem current = await InsertAsync(item);
+            var current = await InsertAsync(item);
             return CreatedAtRoute("Tables", new { id = current.Id }, current);
         }
 
