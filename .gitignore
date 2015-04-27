@@ -1,3 +1,6 @@
 /whatisthatService/bin
 /whatisthatService/obj
 /*.suo
+/whatisthatService/App_Data/*.mdf
+/whatisthatService/App_Data/*.ldf
+/whatisthatService/*.user

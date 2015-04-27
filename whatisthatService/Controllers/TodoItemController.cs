@@ -14,7 +14,7 @@ namespace whatisthatService.Controllers
         protected override void Initialize(HttpControllerContext controllerContext)
         {
             base.Initialize(controllerContext);
-            var context = new WhatisthatContext();
+            var context = new WhatIsThatContext();
             DomainManager = new EntityDomainManager<TodoItem>(context, Request, Services);
         }
 

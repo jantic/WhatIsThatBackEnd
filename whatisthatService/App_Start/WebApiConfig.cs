@@ -26,9 +26,9 @@ namespace whatisthatService
         }
     }
 
-    public class WhatisthatInitializer : ClearDatabaseSchemaIfModelChanges<WhatisthatContext>
+    public class WhatisthatInitializer : ClearDatabaseSchemaIfModelChanges<WhatIsThatContext>
     {
-        protected override void Seed(WhatisthatContext context)
+        protected override void Seed(WhatIsThatContext context)
         {
             var todoItems = new List<TodoItem>
             {

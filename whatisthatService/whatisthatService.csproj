@@ -59,7 +59,7 @@
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
-      <Reference Include="Microsoft.Owin.Host.SystemWeb">
+    <Reference Include="Microsoft.Owin.Host.SystemWeb">
       <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.2.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Mobile.Service">
@@ -187,7 +187,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\TodoItemController.cs" />
     <Compile Include="DataObjects\TodoItem.cs" />
-    <Compile Include="Models\whatisthatContext.cs" />
+    <Compile Include="Models\WhatIsThatContext.cs" />
     <Compile Include="ScheduledJobs\SampleJob.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

@@ -7,7 +7,7 @@ using whatisthatService.DataObjects;
 
 namespace whatisthatService.Models
 {
-    public class WhatisthatContext : DbContext
+    public class WhatIsThatContext : DbContext
     {
         // You can add custom code to this file. Changes will not be overwritten.
         // 
@@ -21,7 +21,7 @@ namespace whatisthatService.Models
         // Web.config, is the same as the service name when hosted in Azure.
         private const string ConnectionStringName = "Name=MS_TableConnectionString";
 
-        public WhatisthatContext() : base(ConnectionStringName)
+        public WhatIsThatContext() : base(ConnectionStringName)
         {
         } 
 
