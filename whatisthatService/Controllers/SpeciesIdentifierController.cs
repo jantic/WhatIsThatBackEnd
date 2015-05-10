@@ -1,25 +1,37 @@
-﻿using System.Collections.Generic;
-using System.Web.Http.Controllers;
-using Microsoft.WindowsAzure.Mobile.Service;
+﻿using System;
+using System.Collections.Generic;
+using System.Spatial;
+using System.Web.Http;
+using whatisthatService.Core.Classification;
+using whatisthatService.Core.Utilities.ImageProcessing;
 using whatisthatService.DataObjects;
-using whatisthatService.Models;
 
 namespace whatisthatService.Controllers
 {
-    public class SpeciesIdentifierController : TableController<TodoItem>
+    public class SpeciesIdentifierController : ApiController
     {
-        protected override void Initialize(HttpControllerContext controllerContext)
+        private readonly SpeciesIdentifier _speciesIdentifier = new SpeciesIdentifier();
+        // GET api/GetSpeciesCandidates
+        public List<SpeciesCandidate> GetSpeciesCandidates(Byte[] imageBytes, double latitude, double longitude, Boolean multisample)
         {
-            base.Initialize(controllerContext);
-            var context = new WhatIsThatContext();
-            DomainManager = new EntityDomainManager<TodoItem>(context, Request, Services);
-        }
+            if (imageBytes != null && imageBytes.Length > 0)
+            {
+                var image = ImageConversion.ByteArrayToImage(imageBytes);
+                var geographyPoint = GeographyPoint.Create(latitude, longitude);
+                var speciesIdentityResult = _speciesIdentifier.GetMostLikelyIdentity(image, geographyPoint, true, multisample);
+                var speciesInfo = speciesIdentityResult.LikelySpeciesInfo;
 
-        // GET tables/GetSpeciesCandidates
-        public List<SpeciesCandidate> GetSpeciesCandidates()
-        {
-            var candidates = new List<SpeciesCandidate> {new SpeciesCandidate("Derp", "Derpus Maximus", 1.0)};
-            return candidates;
+                var serializedResult = new List<SpeciesCandidate>
+                {
+                    new SpeciesCandidate(speciesInfo.GetName(),
+                        speciesInfo.Taxonomy.GetGenus() + " " + speciesInfo.Taxonomy.GetSpecies(),
+                        speciesInfo.GetProbability())
+                };
+                return serializedResult;
+            }
+
+            const string message = "Valid image must be supplied.";
+            throw new ApplicationException(message);
         }
     }
 }
