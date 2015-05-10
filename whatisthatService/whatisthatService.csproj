@@ -59,6 +59,12 @@
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>
+    <Reference Include="AForge.Imaging">
+      <HintPath>SpeciesIndentifier\Utilities\ImageProcessing\AForge\Release\AForge.Imaging.dll</HintPath>
+    </Reference>
+    <Reference Include="GeoAPI">
+      <HintPath>SpeciesIndentifier\Geography\SharpMap\GeoAPI.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Owin.Host.SystemWeb">
       <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.2.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
@@ -77,6 +83,28 @@
     <Reference Include="EntityFramework.SqlServer">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="NetTopologySuite">
+      <HintPath>SpeciesIndentifier\Geography\SharpMap\NetTopologySuite.dll</HintPath>
+    </Reference>
+    <Reference Include="PowerCollections">
+      <HintPath>SpeciesIndentifier\Geography\SharpMap\PowerCollections.dll</HintPath>
+    </Reference>
+    <Reference Include="ReadOnlyCollectionsInterfaces">
+      <HintPath>..\packages\ReadOnlyCollectionInterfaces.1.0.0\lib\NET45\ReadOnlyCollectionsInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.105.1.0\lib\net45\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpMap">
+      <HintPath>SpeciesIndentifier\Geography\SharpMap\SharpMap.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable.Net40">
+      <HintPath>..\packages\System.Collections.Immutable.Net40.1.0.30.17\lib\net40\System.Collections.Immutable.Net40.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web.Http">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.2\lib\net45\System.Web.Http.dll</HintPath>
@@ -179,13 +207,16 @@
     <Reference Include="System.Spatial">
       <HintPath>..\packages\System.Spatial.5.6.2\lib\net40\System.Spatial.dll</HintPath>
     </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\SpeciesIdentifierController.cs" />
     <Compile Include="Controllers\TodoItemController.cs" />
+    <Compile Include="DataObjects\SpeciesCandidate.cs" />
     <Compile Include="DataObjects\TodoItem.cs" />
     <Compile Include="Models\WhatIsThatContext.cs" />
     <Compile Include="ScheduledJobs\SampleJob.cs" />
@@ -193,6 +224,51 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\ClarifaiClient.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Exceptions\ApiThrottleError.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Exceptions\ExpiredTokenError.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\ClarifaiApiInfo.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\ClarifaiTagsCollection.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\Dto\ClarifaiApiInfoResultDto.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\Dto\ClarifaiIndividualResultDto.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\Dto\ClarifaiMetaApiInfoResponseDto.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\Dto\ClarifaiMetaResultDto.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\Dto\ClarifaiMultiResultDto.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\Dto\ClarifaiResponseDto.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\Dto\ClarifaiTagMetaDto.cs" />
+    <Compile Include="SpeciesIndentifier\Clarifai\Response\Dto\ClarifaiTagResultDto.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\Exceptions\NoClientResponseError.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\ImageTag.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\MetaFilterFactory.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\MetaFilters\IMetaFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\MetaFilters\MetaHumanFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\MetaFilters\MetaProbabilityFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\MetaFilters\MetaUniqueTaxonomyFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesFilterFactory.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesFilters\ISpeciesFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesFilters\LocalSpeciesFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesFilters\OutlierSpeciesFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesFilters\SpeciesProbabilityFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesFilters\UniqueTaxonomyFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesIdentifier.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesIdentityResult.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\SpeciesInfo.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\TagFilters\HumanTagsFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\TagFilters\ITagsFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\TagFilters\TagBlacklistSpeciesFilter.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\TagsFilterFactory.cs" />
+    <Compile Include="SpeciesIndentifier\Classification\TaxonomicClassification.cs" />
+    <Compile Include="SpeciesIndentifier\Geography\Dto\GeographicSpeciesInfoDto.cs" />
+    <Compile Include="SpeciesIndentifier\Geography\Dto\GeographicSpeciesListDto.cs" />
+    <Compile Include="SpeciesIndentifier\Geography\IUCNClient.cs" />
+    <Compile Include="SpeciesIndentifier\Utilities\Caching\GenericLongTermCache.cs" />
+    <Compile Include="SpeciesIndentifier\Utilities\Caching\LongTermImageCache.cs" />
+    <Compile Include="SpeciesIndentifier\Utilities\ImageProcessing\BoundingRectangle.cs" />
+    <Compile Include="SpeciesIndentifier\Utilities\ImageProcessing\ImageConversion.cs" />
+    <Compile Include="SpeciesIndentifier\Wolfram\Response\Dto\WolframResponseDto.cs" />
+    <Compile Include="SpeciesIndentifier\Wolfram\Response\WolframCommonNameData.cs" />
+    <Compile Include="SpeciesIndentifier\Wolfram\Response\WolframTaxonomyData.cs" />
+    <Compile Include="SpeciesIndentifier\Wolfram\WolframClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
