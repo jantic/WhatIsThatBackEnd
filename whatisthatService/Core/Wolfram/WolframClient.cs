@@ -19,9 +19,9 @@ namespace whatisthatService.Core.Wolfram
     public class WolframClient
     {
         private const string BaseUrl = "https://programming.wolframcloud.com";
-        private readonly string _nameDataPath = ConfigurationManager.AppSettings["wolfram_name_data_path"];
-        private readonly string _taxonomicDataPath = ConfigurationManager.AppSettings["wolfram_taxonomy_path"];
-        private readonly string _taxonomicIdImagePath = ConfigurationManager.AppSettings["wolfram_taxonomic_id_image_path"];
+        private static readonly string NameDataPath = System.Web.Configuration.WebConfigurationManager.AppSettings["wolfram_name_data_path"];
+        private static readonly string TaxonomicDataPath = System.Web.Configuration.WebConfigurationManager.AppSettings["wolfram_taxonomy_path"];
+        private static readonly string TaxonomicIdImagePath = System.Web.Configuration.WebConfigurationManager.AppSettings["wolfram_taxonomic_id_image_path"];
 
         private static readonly GenericLongTermCache<WolframResponseDto> CommonNameCache = new GenericLongTermCache<WolframResponseDto>();
         private static readonly GenericLongTermCache<WolframResponseDto> TaxonomicDataCache = new GenericLongTermCache<WolframResponseDto>();
@@ -49,7 +49,7 @@ namespace whatisthatService.Core.Wolfram
             var speciesParam = new Parameter { Name = "species", Value = taxonomy.GetSpecies(), Type = ParameterType.QueryString };
             parameters.Add(speciesParam);
 
-            var nameDataDto = ExecuteGetRequest<WolframResponseDto>(_nameDataPath, parameters);
+            var nameDataDto = ExecuteGetRequest<WolframResponseDto>(NameDataPath, parameters);
 
             if (nameDataDto != null)
             {
@@ -86,7 +86,7 @@ namespace whatisthatService.Core.Wolfram
             var tagParameter = new Parameter {Name = "tag", Value = tag, Type = ParameterType.QueryString};
             parameters.Add(tagParameter);
       
-            var taxonomicDataDto = ExecuteGetRequest<WolframResponseDto>(_taxonomicDataPath, parameters);
+            var taxonomicDataDto = ExecuteGetRequest<WolframResponseDto>(TaxonomicDataPath, parameters);
 
             if (taxonomicDataDto != null)
             {
@@ -120,7 +120,7 @@ namespace whatisthatService.Core.Wolfram
             parameters.Add(taxonomicLevelParameter);
             var scientificNameParameter = new Parameter { Name = "scientificName", Value = scientificName, Type = ParameterType.QueryString };
             parameters.Add(scientificNameParameter);
-            var imageDataDto = ExecuteGetRequest<WolframResponseDto>(_taxonomicIdImagePath, parameters);
+            var imageDataDto = ExecuteGetRequest<WolframResponseDto>(TaxonomicIdImagePath, parameters);
 
             if (imageDataDto == null) return null;
             var image = ConvertResponseToImage(imageDataDto);

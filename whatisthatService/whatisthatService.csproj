@@ -441,7 +441,9 @@
     <Content Include="Core\Utilities\JsonNet4.5\Newtonsoft.Json.pdb" />
     <Content Include="Core\Utilities\JsonNet4.5\Newtonsoft.Json.xml" />
     <Content Include="Global.asax" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -463,10 +465,22 @@
     <Content Include="Core\Utilities\ImageProcessing\AForge\Externals\ffmpeg\lib\swscale.lib" />
     <Content Include="Core\Utilities\ImageProcessing\AForge\Externals\libfreenect\APACHE20" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="HiddenSettings.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="HiddenSettings.template.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
     <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+    <Copy SourceFiles="HiddenSettings.Template.config" DestinationFiles="HiddenSettings.config" SkipUnchangedFiles="true" Condition="!Exists('HiddenSettings.config')">
+    </Copy>
   </Target>
 </Project>

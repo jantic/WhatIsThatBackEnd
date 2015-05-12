@@ -4,3 +4,4 @@
 /whatisthatService/App_Data/*.mdf
 /whatisthatService/App_Data/*.ldf
 /whatisthatService/*.user
+/whatisthatService/HiddenSettings.config

@@ -24,13 +24,15 @@ namespace whatisthatService.Core.Clarifai
     ///</summary>
     public class ClarifaiClient
     {
+        private static readonly String ClientId = System.Web.Configuration.WebConfigurationManager.AppSettings["clarifai_api_id"];
+        private static readonly String ClientSecret = System.Web.Configuration.WebConfigurationManager.AppSettings["clarifai_api_secret"];
+
         private const String BaseUrl = "https://api.clarifai.com";
         private const String InfoPath = "/v1/info/";
         private const String MultiPartPath = "/v1/multiop/";
         private const String TokenPath = "/v1/token/";
         private const Double ThrottleWaitSecondsDefault = 10;
-        private readonly String _clientId = ConfigurationManager.AppSettings["clarifai_api_id"];
-        private readonly String _clientSecret = ConfigurationManager.AppSettings["clarifai_api_secret"];
+
 
         private static readonly DirectoryInfo CacheDirectoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory() + "/ClarifaiCache/");
         private static readonly GenericLongTermCache<ClarifaiTagResultDto> TagResultCache = new GenericLongTermCache<ClarifaiTagResultDto>();
@@ -239,8 +241,8 @@ namespace whatisthatService.Core.Clarifai
                     var uri = new Uri(BaseUrl + TokenPath);
                     var nameValues = new NameValueCollection();
                     nameValues.Add("grant_type", "client_credentials");
-                    nameValues.Add("client_id", _clientId);
-                    nameValues.Add("client_secret", _clientSecret);
+                    nameValues.Add("client_id", ClientId);
+                    nameValues.Add("client_secret", ClientSecret);
                     var postData = ToQueryString(nameValues);
                     var request = WebRequest.Create(uri);
                     request.Method = "POST";
