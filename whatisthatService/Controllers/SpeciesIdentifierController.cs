@@ -32,8 +32,8 @@ namespace whatisthatService.Controllers
                 return serializedResult;
             //}
 
-            const string message = "Valid image must be supplied.";
-            throw new ApplicationException(message);
+            //const string message = "Valid image must be supplied.";
+            //throw new ApplicationException(message);
         }
     }
 }

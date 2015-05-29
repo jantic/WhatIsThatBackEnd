@@ -8,7 +8,7 @@ namespace whatisthatService.Core.Classification
     public class TaxonomicClassification
     {
         public static readonly TaxonomicClassification NULL = new TaxonomicClassification("","","","","","","");
-        public static readonly TaxonomicClassification HUMAN = new TaxonomicClassification("ANIMALIA", "CHORDATA", "MAMMALIA", "PRIMATES", "HOMINIDAE", "Homo", "HomoSapiens");
+        public static readonly TaxonomicClassification HUMAN = new TaxonomicClassification("ANIMALIA", "CHORDATA", "MAMMALIA", "PRIMATES", "HOMINIDAE", "Homo", "Sapiens");
 
         public static TaxonomicClassification GetInstance(String kingdom, String phylum, String bioClass, String order, String family, String genus, String species)
         {

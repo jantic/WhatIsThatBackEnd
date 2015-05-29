@@ -1,34 +1,26 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data;
+using System.Data.SqlClient;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Spatial;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Configuration;
 using GeoAPI;
-using GeoAPI.Geometries;
 using NetTopologySuite;
-using SharpMap.Data;
-using SharpMap.Data.Providers;
 using whatisthatService.Core.Classification;
 using whatisthatService.Core.Geography.Dto;
 using whatisthatService.Core.Utilities.Caching;
-using Geometry = NetTopologySuite.Geometries.Geometry;
 
 namespace whatisthatService.Core.Geography
 {
     public class IUCNClient
     {
-        private static readonly DirectoryInfo GeographyDirectoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory() + "/Geography/IUCN/");
-        private static readonly FileInfo MammalsShapeFileInfo = new FileInfo(GeographyDirectoryInfo.FullName + "/Mammals/MAMMALS.shp");
-        private static readonly FileInfo AmphibiansShapeFileInfo = new FileInfo(GeographyDirectoryInfo.FullName + "/Amphibians/AMPHIBIANS.shp");
-        private static readonly FileInfo ReptilesShapeFileInfo = new FileInfo(GeographyDirectoryInfo.FullName + "/Reptiles/REPTILES.shp");
-        private static readonly ImmutableList<String> SupportedTaxonomicClasses = ImmutableList.Create("mammalia", "reptilia", "amphibia");
-        private static readonly GenericLongTermCache<GeographicSpeciesListDto> GeographicSpeciesListDataCache = new GenericLongTermCache<GeographicSpeciesListDto>();
+        private static readonly String WhatIsThatDbConnString = WebConfigurationManager.AppSettings["whatisthatdb_connection"];
+        private static readonly GenericMemoryCache<GeographicSpeciesListDto> GeographicSpeciesListDataCache = new GenericMemoryCache<GeographicSpeciesListDto>();
 
         static IUCNClient()
         {
@@ -38,15 +30,16 @@ namespace whatisthatService.Core.Geography
         public List<TaxonomicClassification> GetLocalSpeciesTaxonomiesList(GeographyPoint coordinates)
         {
             var dtos = GetApplicableSpeciesListDtos(coordinates);
-            var classificationsLookup = new Dictionary<String, TaxonomicClassification>();
+            var classificationsLookup = new Dictionary<String, TaxonomicClassification>
+            {
+                {"Homo.sapien", TaxonomicClassification.HUMAN},
+            };
             //Strangely, humans aren't listed in their data!  We need it for our purposes.
-            classificationsLookup.Add("Homo.sapien", TaxonomicClassification.HUMAN);
 
             foreach (var dto in dtos)
             {
                 var classifications = dto.SpeciesInfoDtoList.Select(speciesInfoDto =>
-                    TaxonomicClassification.GetInstance(speciesInfoDto.Kingdom, speciesInfoDto.Phylum, speciesInfoDto.Class,
-                        speciesInfoDto.Order,
+                    TaxonomicClassification.GetInstance(speciesInfoDto.Kingdom, speciesInfoDto.Phylum, speciesInfoDto.Class, speciesInfoDto.Order,
                         speciesInfoDto.Family, speciesInfoDto.Genus, speciesInfoDto.Species)).ToList();
 
                 foreach (var classification in classifications)
@@ -85,22 +78,14 @@ namespace whatisthatService.Core.Geography
             var coordinatesList = new List<GeographyPoint>
             {
                 roundedCoordinates,
-                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude + step, 1),
-                    Math.Round(roundedCoordinates.Longitude + step, 1)),
-                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude + step, 1),
-                    Math.Round(roundedCoordinates.Longitude, 1)),
-                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude + step, 1),
-                    Math.Round(roundedCoordinates.Longitude - step, 1)),
-                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude - step, 1),
-                    Math.Round(roundedCoordinates.Longitude + step, 1)),
-                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude - step, 1),
-                    Math.Round(roundedCoordinates.Longitude, 1)),
-                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude - step, 1),
-                    Math.Round(roundedCoordinates.Longitude - step, 1)),
-                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude, 1),
-                    Math.Round(roundedCoordinates.Longitude + step, 1)),
-                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude, 1),
-                    Math.Round(roundedCoordinates.Longitude - step, 1))
+                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude + step, 1), Math.Round(roundedCoordinates.Longitude + step, 1)),
+                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude + step, 1), Math.Round(roundedCoordinates.Longitude, 1)),
+                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude + step, 1), Math.Round(roundedCoordinates.Longitude - step, 1)),
+                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude - step, 1), Math.Round(roundedCoordinates.Longitude + step, 1)),
+                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude - step, 1), Math.Round(roundedCoordinates.Longitude, 1)),
+                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude - step, 1), Math.Round(roundedCoordinates.Longitude - step, 1)),
+                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude, 1), Math.Round(roundedCoordinates.Longitude + step, 1)),
+                GeographyPoint.Create(Math.Round(roundedCoordinates.Latitude, 1), Math.Round(roundedCoordinates.Longitude - step, 1))
             };
 
 
@@ -116,7 +101,7 @@ namespace whatisthatService.Core.Geography
                 return cachedDto;
             }
 
-            var dto = ReadSpeciesDistributionFromShapeFiles(coordinates);
+            var dto = ReadSpeciesDistributionFromDatabase(coordinates);
             GeographicSpeciesListDataCache.Set(cacheKey, dto);
             return dto;
         }
@@ -132,48 +117,41 @@ namespace whatisthatService.Core.Geography
 
 
 
-        private GeographicSpeciesListDto ReadSpeciesDistributionFromShapeFiles(GeographyPoint coordinates)
+        private GeographicSpeciesListDto ReadSpeciesDistributionFromDatabase(GeographyPoint point)
         {
 
             var speciesInfoDictionary = new Dictionary<String, GeographicSpeciesInfoDto>();
 
-
-            foreach (var supportedClass in SupportedTaxonomicClasses)
+            using (var sqlConnection = new SqlConnection(WhatIsThatDbConnString))
             {
-                ShapeFile shapeFile = null;
+                sqlConnection.Open();
 
-                try
+                var cmd = new SqlCommand("SELECT * FROM SpeciesGeography WHERE LatitudeX10 = @LatitudeX10 AND LongitudeX10 = @LongitudeX10")
                 {
-                    var shapeFileInfo = GetShapeFileInfo(supportedClass);
-                    if (shapeFileInfo == null)
+                    CommandType = CommandType.Text,
+                    Connection = sqlConnection
+                };
+
+                cmd.Parameters.AddWithValue("@LatitudeX10", Math.Round(point.Latitude * 10, 0));
+                cmd.Parameters.AddWithValue("@LongitudeX10", Math.Round(point.Longitude * 10, 0));
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
                     {
-                        continue;
-                    }
-
-                    shapeFile = new ShapeFile(shapeFileInfo.FullName);
-                    shapeFile.Open();
-
-
-                    var geometryObject = Geometry.DefaultFactory.CreatePoint(new Coordinate(coordinates.Longitude, coordinates.Latitude));
-                    var ds = new FeatureDataSet();
-
-                    //example uses a map image, but this could be a layer generated with code
-                    shapeFile.ExecuteIntersectionQuery(geometryObject.Centroid, ds);
-
-                    foreach (var dt in ds.Tables)
-                    {
-                        foreach (DataRow row in dt.Rows)
+                        while (reader.Read())
                         {
                             var speciesInfoDto = new GeographicSpeciesInfoDto
                             {
-                                Kingdom = row.ItemArray[17].ToString(),
-                                Phylum = row.ItemArray[18].ToString(),
-                                Class = row.ItemArray[19].ToString(),
-                                Order = row.ItemArray[20].ToString(),
-                                Family = row.ItemArray[21].ToString(),
-                                Genus = row.ItemArray[22].ToString(),
-                                Species = row.ItemArray[23].ToString(),
-                                PresenceCode = Int32.Parse(row.ItemArray[14].ToString())
+                                Kingdom = reader["Kingdom"].ToString(),
+                                Phylum = reader["Phylum"].ToString(),
+                                Class = reader["Class"].ToString(),
+                                Order = reader["Order"].ToString(),
+                                Family = reader["Family"].ToString(),
+                                Genus = reader["Genus"].ToString(),
+                                Species = reader["Species"].ToString(),
+                                PresenceCode = 1
+                                //TODO:  This may or may not be relevant for our purposes.  For now, assuming not.
                             };
                             var key = speciesInfoDto.Species.Trim().ToLower();
 
@@ -184,30 +162,13 @@ namespace whatisthatService.Core.Geography
                             }
                         }
                     }
-
                 }
-                finally
-                {
-                    if (shapeFile != null)
-                    {
-                        try
-                        {
-                            shapeFile.Close();
-                            shapeFile.Dispose();
-                        }
-                        catch (Exception)
-                        {
-                            //do nothing
-                        }
-                    }
-                }
-
             }
 
             var geographicSpeciesListDto = new GeographicSpeciesListDto
             {
-                Latitude = coordinates.Latitude,
-                Longitude = coordinates.Longitude,
+                Latitude = point.Latitude,
+                Longitude = point.Longitude,
                 SpeciesInfoDtoList = speciesInfoDictionary.Values.ToList()
             };
 
@@ -215,19 +176,6 @@ namespace whatisthatService.Core.Geography
             return geographicSpeciesListDto;
         }
 
-        private FileInfo GetShapeFileInfo(String taxonomicClass)
-        {
-            switch (taxonomicClass)
-            {
-                case "mammalia":
-                    return MammalsShapeFileInfo;
-                case "amphibia":
-                    return AmphibiansShapeFileInfo;
-                case "reptilia":
-                    return ReptilesShapeFileInfo;
-                default:
-                    return null;
-            }
-        }
+
     }
 }

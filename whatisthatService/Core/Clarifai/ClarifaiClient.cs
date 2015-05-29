@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
@@ -15,7 +13,6 @@ using RestSharp.Contrib;
 using whatisthatService.Core.Clarifai.Exceptions;
 using whatisthatService.Core.Clarifai.Response;
 using whatisthatService.Core.Clarifai.Response.Dto;
-using whatisthatService.Core.Utilities.Caching;
 using whatisthatService.Core.Utilities.ImageProcessing;
 
 namespace whatisthatService.Core.Clarifai
@@ -34,8 +31,7 @@ namespace whatisthatService.Core.Clarifai
         private const Double ThrottleWaitSecondsDefault = 10;
 
 
-        private static readonly DirectoryInfo CacheDirectoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory() + "/ClarifaiCache/");
-        private static readonly GenericLongTermCache<ClarifaiTagResultDto> TagResultCache = new GenericLongTermCache<ClarifaiTagResultDto>();
+       // private static readonly GenericMemoryCache<ClarifaiTagResultDto> TagResultCache = new GenericMemoryCache<ClarifaiTagResultDto>();
 
         //Needs lock
         private static ClarifaiApiInfo _apiInfo;
@@ -48,22 +44,8 @@ namespace whatisthatService.Core.Clarifai
         {
             var resizedImage = ResizeImageIfNeeded(image);
             var imagePngByteArray = ImageConversion.ImageToPngByteArray(resizedImage);
-            var cacheKey = GenerateTagResultCacheKey(imagePngByteArray);
-            var cachedTags = TagResultCache.Get(cacheKey);
-
-            if (cachedTags != null)
-            {
-                return new ClarifaiTagsCollection(cachedTags);
-            }
-
             var result = ExecutePostRequest<ClarifaiResponseDto>(MultiPartPath, imagePngByteArray, "tag");
             var tagsResult = result.results == null ? null : result.results[0].result.tag;
-
-            if (tagsResult != null)
-            {         
-                TagResultCache.Set(cacheKey, tagsResult);
-            }
-
             return new ClarifaiTagsCollection(tagsResult);
         }
 
@@ -83,15 +65,6 @@ namespace whatisthatService.Core.Clarifai
 
                 return _apiInfo.Clone();
             }
-        }
-
-        private String GenerateTagResultCacheKey(byte [] imageByteArray)
-        {
-            using (var sha1 = new SHA1CryptoServiceProvider())
-            {
-                return Convert.ToBase64String(sha1.ComputeHash(imageByteArray));
-            }
-
         }
 
         private T ExecuteGetRequest<T>(String apiPath) where T : new()

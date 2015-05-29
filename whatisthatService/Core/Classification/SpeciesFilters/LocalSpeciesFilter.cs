@@ -133,7 +133,7 @@ namespace whatisthatService.Core.Classification.SpeciesFilters
         {
             return localTaxonomies.Where(localTaxonomy => 
                 (String.Equals(localTaxonomy.GetGenus(), candidate.Taxonomy.GetGenus(), StringComparison.InvariantCultureIgnoreCase)
-                && !String.Equals(localTaxonomy.GetSpecies(), "HomoSapiens", StringComparison.InvariantCultureIgnoreCase))).ToList();
+                && !String.Equals(localTaxonomy.GetSpecies(), "Sapiens", StringComparison.InvariantCultureIgnoreCase))).ToList();
         }
 
         //Humans are a special case here- only allow for exact species matches;  Otherwise, human identification tends to overfire
@@ -141,7 +141,7 @@ namespace whatisthatService.Core.Classification.SpeciesFilters
         {
             return localTaxonomies.Where(localTaxonomy => 
                 (String.Equals(localTaxonomy.GetFamily(), candidate.Taxonomy.GetFamily(), StringComparison.InvariantCultureIgnoreCase) 
-                && !String.Equals(localTaxonomy.GetSpecies(), "HomoSapiens", StringComparison.InvariantCultureIgnoreCase))).ToList();
+                && !String.Equals(localTaxonomy.GetSpecies(), "Sapiens", StringComparison.InvariantCultureIgnoreCase))).ToList();
         }
     }
 }

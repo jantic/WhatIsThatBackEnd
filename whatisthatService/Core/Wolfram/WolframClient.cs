@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Drawing;
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Web.Configuration;
 using Newtonsoft.Json;
 using RestSharp;
 using whatisthatService.Core.Classification;
@@ -19,13 +16,11 @@ namespace whatisthatService.Core.Wolfram
     public class WolframClient
     {
         private const string BaseUrl = "https://programming.wolframcloud.com";
-        private static readonly string NameDataPath = System.Web.Configuration.WebConfigurationManager.AppSettings["wolfram_name_data_path"];
-        private static readonly string TaxonomicDataPath = System.Web.Configuration.WebConfigurationManager.AppSettings["wolfram_taxonomy_path"];
-        private static readonly string TaxonomicIdImagePath = System.Web.Configuration.WebConfigurationManager.AppSettings["wolfram_taxonomic_id_image_path"];
+        private static readonly string CommonNameDataPath = WebConfigurationManager.AppSettings["wolfram_name_data_path"];
+        private static readonly string TaxonomicDataPath = WebConfigurationManager.AppSettings["wolfram_taxonomy_path"];
 
-        private static readonly GenericLongTermCache<WolframResponseDto> CommonNameCache = new GenericLongTermCache<WolframResponseDto>();
-        private static readonly GenericLongTermCache<WolframResponseDto> TaxonomicDataCache = new GenericLongTermCache<WolframResponseDto>();
-        private static readonly LongTermImageCache TaxonomicIdImageCache = new LongTermImageCache();
+        private static readonly GenericMemoryCache<WolframResponseDto> CommonNameCache = new GenericMemoryCache<WolframResponseDto>();
+        private static readonly WolframTagToTaxonomyCache TaxonomicDataCache = new WolframTagToTaxonomyCache();
 
         public String GetCommonNameFromScientific(TaxonomicClassification taxonomy)
         {
@@ -49,7 +44,7 @@ namespace whatisthatService.Core.Wolfram
             var speciesParam = new Parameter { Name = "species", Value = taxonomy.GetSpecies(), Type = ParameterType.QueryString };
             parameters.Add(speciesParam);
 
-            var nameDataDto = ExecuteGetRequest<WolframResponseDto>(NameDataPath, parameters);
+            var nameDataDto = ExecuteGetRequest<WolframResponseDto>(CommonNameDataPath, parameters);
 
             if (nameDataDto != null)
             {
@@ -71,12 +66,10 @@ namespace whatisthatService.Core.Wolfram
 
         public TaxonomicClassification GetTaxonomyData(String tag)
         {
-            var cacheKey = GenerateTaxonomicDataCacheKey(tag);
-            var cachedSpeciesDataDto = TaxonomicDataCache.Get(cacheKey);
+            var cachedTaxonomyData = TaxonomicDataCache.Get(tag);
 
-            if (cachedSpeciesDataDto != null)
+            if (cachedTaxonomyData != null)
             {
-                var cachedTaxonomyData = WolframTaxonomyData.GetInstance(cachedSpeciesDataDto);
                 return TaxonomicClassification.GetInstance(cachedTaxonomyData.Kingdom, cachedTaxonomyData.Phylum, 
                     cachedTaxonomyData.Class, cachedTaxonomyData.Order, cachedTaxonomyData.Family,
                     cachedTaxonomyData.Genus, cachedTaxonomyData.Species);
@@ -90,71 +83,20 @@ namespace whatisthatService.Core.Wolfram
 
             if (taxonomicDataDto != null)
             {
-                TaxonomicDataCache.Set(cacheKey, taxonomicDataDto);
+                var wolframTaxonomyData = WolframTaxonomyData.GetInstance(taxonomicDataDto);
+                TaxonomicDataCache.Set(tag, wolframTaxonomyData);
+
+                return TaxonomicClassification.GetInstance(wolframTaxonomyData.Kingdom, wolframTaxonomyData.Phylum,
+                    wolframTaxonomyData.Class, wolframTaxonomyData.Order, wolframTaxonomyData.Family,
+                    wolframTaxonomyData.Genus, wolframTaxonomyData.Species);
             }
 
-            var wolframTaxonomyData = WolframTaxonomyData.GetInstance(taxonomicDataDto);
-            return TaxonomicClassification.GetInstance(wolframTaxonomyData.Kingdom, wolframTaxonomyData.Phylum, 
-                wolframTaxonomyData.Class, wolframTaxonomyData.Order, wolframTaxonomyData.Family,
-                wolframTaxonomyData.Genus, wolframTaxonomyData.Species);
-        }
+            var nullData = WolframTaxonomyData.NULL;
 
-        private String GenerateTaxonomicDataCacheKey(String tag)
-        {
-            return tag.Trim().ToLower();
-        }
+            return TaxonomicClassification.GetInstance(nullData.Kingdom, nullData.Phylum,
+                nullData.Class, nullData.Order, nullData.Family,
+                nullData.Genus, nullData.Species);
 
-
-        public Image GetTaxonomicIdImage(String taxonomicLevel, String scientificName)
-        {
-            var cacheKey = GenerateTaxonomicIDImageCacheKey(taxonomicLevel, scientificName);
-            var cachedImage = TaxonomicIdImageCache.Get(cacheKey);
-
-            if (cachedImage != null)
-            {
-                return cachedImage;
-            }
-
-            var parameters = new List<Parameter>();
-            var taxonomicLevelParameter = new Parameter { Name = "taxonomicLevel", Value = taxonomicLevel, Type = ParameterType.QueryString };
-            parameters.Add(taxonomicLevelParameter);
-            var scientificNameParameter = new Parameter { Name = "scientificName", Value = scientificName, Type = ParameterType.QueryString };
-            parameters.Add(scientificNameParameter);
-            var imageDataDto = ExecuteGetRequest<WolframResponseDto>(TaxonomicIdImagePath, parameters);
-
-            if (imageDataDto == null) return null;
-            var image = ConvertResponseToImage(imageDataDto);
-            TaxonomicIdImageCache.Set(cacheKey, image);
-            return image;
-        }
-
-        private Image ConvertResponseToImage(WolframResponseDto dto)
-        {
-            const String pattern = "(URL\"\\s+->\\s+\")(.*?)(\",\\s+\"Source)";
-            var regex = new Regex(pattern);
-            if (!regex.IsMatch(dto.Result)) return default(Image);
-            var url = regex.Match(dto.Result).Groups[2].ToString();
-            return GetImageFromUrl(url);
-        }
-
-        private Image GetImageFromUrl(String url)
-        {
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-
-            using (var httpWebReponse = (HttpWebResponse)httpWebRequest.GetResponse())
-            {
-                using (var stream = httpWebReponse.GetResponseStream())
-                {
-                    if (stream != null) return Image.FromStream(stream);
-                }
-            }
-
-            return null;
-        }
-
-        private String GenerateTaxonomicIDImageCacheKey(String taxonomicLevel, String scientificName)
-        {
-            return taxonomicLevel + "." + scientificName;
         }
 
         private T ExecuteGetRequest<T>(String apiPath, List<Parameter> parameters) where T : new()

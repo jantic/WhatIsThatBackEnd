@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using whatisthatService.Core.Wolfram;
 
 namespace whatisthatService.Core.Classification
 {
@@ -57,21 +55,6 @@ namespace whatisthatService.Core.Classification
         public Boolean IsGeneralizationOfThis(SpeciesInfo candidate)
         {
             return _taxonomy.IsGeneralizationOfThis(candidate._taxonomy);
-        }
-
-        public Image GetImage()
-        {
-            var classification = _taxonomy.GetMostSpecificClassification();
-            if (String.IsNullOrEmpty(classification.Value)) return null;
-            var wolframClient = new WolframClient();
-            return wolframClient.GetTaxonomicIdImage(classification.Key.ToString(), Capitalise(classification.Value));
-        }
-
-        private string Capitalise(string str)
-        {
-            if (String.IsNullOrEmpty(str))
-                return String.Empty;
-            return Char.ToUpper(str[0]) + str.Substring(1).ToLower();
         }
     }
 }

@@ -5,3 +5,10 @@
 /whatisthatService/App_Data/*.ldf
 /whatisthatService/*.user
 /whatisthatService/HiddenSettings.config
+/whatisthatService/HiddenConnectionStrings.config
+/whatisthatServiceTools/App.config
+/sql/dbo.SpeciesGeography.sql
+/whatisthatServiceTools/bin
+/whatisthatServiceTools/obj
+/sql/Queries.sql
+/whatisthat.sln.DotSettings.user

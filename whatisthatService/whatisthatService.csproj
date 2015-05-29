@@ -31,6 +31,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -253,14 +254,14 @@
     <Compile Include="Core\Geography\Dto\GeographicSpeciesInfoDto.cs" />
     <Compile Include="Core\Geography\Dto\GeographicSpeciesListDto.cs" />
     <Compile Include="Core\Geography\IUCNClient.cs" />
-    <Compile Include="Core\Utilities\Caching\GenericLongTermCache.cs" />
-    <Compile Include="Core\Utilities\Caching\LongTermImageCache.cs" />
+    <Compile Include="Core\Utilities\Caching\GenericMemoryCache.cs" />
     <Compile Include="Core\Utilities\ImageProcessing\BoundingRectangle.cs" />
     <Compile Include="Core\Utilities\ImageProcessing\ImageConversion.cs" />
     <Compile Include="Core\Wolfram\Response\Dto\WolframResponseDto.cs" />
     <Compile Include="Core\Wolfram\Response\WolframCommonNameData.cs" />
     <Compile Include="Core\Wolfram\Response\WolframTaxonomyData.cs" />
     <Compile Include="Core\Wolfram\WolframClient.cs" />
+    <Compile Include="Core\Wolfram\WolframTagToTaxonomyCache.cs" />
     <Compile Include="DataObjects\SpeciesCandidate.cs" />
     <Compile Include="DataObjects\TodoItem.cs" />
     <Compile Include="Models\WhatIsThatContext.cs" />
@@ -443,12 +444,15 @@
     <Content Include="Global.asax" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="packages.config">
       <SubType>Designer</SubType>
@@ -468,11 +472,13 @@
   <ItemGroup>
     <Content Include="HiddenSettings.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="HiddenSettings.template.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
