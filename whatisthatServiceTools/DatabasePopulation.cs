@@ -68,35 +68,6 @@ namespace whatisthatServiceTools
             }
         }
 
-        private void UpdateDatabaseWithTagToTaxonomicInfo(String tagName, WolframTaxonomyData taxonomyData)
-        {
-            var whatIsThatDbConnString = ConfigurationManager.AppSettings["whatisthatdb_connection"];
-
-            using (var sqlConnection = new SqlConnection(whatIsThatDbConnString))
-            {
-                sqlConnection.Open();
-                var cmd = new SqlCommand("UPDATE TagToTaxonomy " +
-                         "SET Kingdom=@Kingdom, Phylum=@Phylum, Class=@Class, [Order]=@Order, Family=@Family, " +
-                         "Genus=@Genus, Species=@Species " +
-                         "WHERE Tag=@Tag " +
-                         "IF @@ROWCOUNT=0 INSERT INTO TagToTaxonomy (Tag, Kingdom, Phylum, Class, [Order], Family, Genus, Species) " +
-                         "VALUES (@Tag, @Kingdom, @Phylum, @Class, @Order, @Family, @Genus, @Species)")
-                {
-                    CommandType = CommandType.Text,
-                    Connection = sqlConnection
-                };
-
-                cmd.Parameters.AddWithValue("@Tag", tagName.Trim().ToLower());
-                cmd.Parameters.AddWithValue("@Kingdom", taxonomyData.Kingdom);
-                cmd.Parameters.AddWithValue("@Phylum", taxonomyData.Phylum);
-                cmd.Parameters.AddWithValue("@Class", taxonomyData.Class);
-                cmd.Parameters.AddWithValue("@Order", taxonomyData.Order);
-                cmd.Parameters.AddWithValue("@Family", taxonomyData.Family);
-                cmd.Parameters.AddWithValue("@Genus", taxonomyData.Genus);
-                cmd.Parameters.AddWithValue("@Species", taxonomyData.Species);
-                cmd.ExecuteNonQuery();
-            } 
-        }
 
         /************************************************************************************************************************/
         /*****PRIVATE METHODS****************************************************************************************************/
@@ -279,6 +250,37 @@ namespace whatisthatServiceTools
             using (var file = new StreamReader(fileName))
             {
                 return (T)reader.Deserialize(file);
+            }
+        }
+
+
+        private void UpdateDatabaseWithTagToTaxonomicInfo(String tagName, WolframTaxonomyData taxonomyData)
+        {
+            var whatIsThatDbConnString = ConfigurationManager.AppSettings["whatisthatdb_connection"];
+
+            using (var sqlConnection = new SqlConnection(whatIsThatDbConnString))
+            {
+                sqlConnection.Open();
+                var cmd = new SqlCommand("UPDATE TagToTaxonomy " +
+                         "SET Kingdom=@Kingdom, Phylum=@Phylum, Class=@Class, [Order]=@Order, Family=@Family, " +
+                         "Genus=@Genus, Species=@Species " +
+                         "WHERE Tag=@Tag " +
+                         "IF @@ROWCOUNT=0 INSERT INTO TagToTaxonomy (Tag, Kingdom, Phylum, Class, [Order], Family, Genus, Species) " +
+                         "VALUES (@Tag, @Kingdom, @Phylum, @Class, @Order, @Family, @Genus, @Species)")
+                {
+                    CommandType = CommandType.Text,
+                    Connection = sqlConnection
+                };
+
+                cmd.Parameters.AddWithValue("@Tag", tagName.Trim().ToLower());
+                cmd.Parameters.AddWithValue("@Kingdom", taxonomyData.Kingdom);
+                cmd.Parameters.AddWithValue("@Phylum", taxonomyData.Phylum);
+                cmd.Parameters.AddWithValue("@Class", taxonomyData.Class);
+                cmd.Parameters.AddWithValue("@Order", taxonomyData.Order);
+                cmd.Parameters.AddWithValue("@Family", taxonomyData.Family);
+                cmd.Parameters.AddWithValue("@Genus", taxonomyData.Genus);
+                cmd.Parameters.AddWithValue("@Species", taxonomyData.Species);
+                cmd.ExecuteNonQuery();
             }
         }
 

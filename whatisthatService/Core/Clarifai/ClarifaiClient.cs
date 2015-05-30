@@ -30,9 +30,6 @@ namespace whatisthatService.Core.Clarifai
         private const String TokenPath = "/v1/token/";
         private const Double ThrottleWaitSecondsDefault = 10;
 
-
-       // private static readonly GenericMemoryCache<ClarifaiTagResultDto> TagResultCache = new GenericMemoryCache<ClarifaiTagResultDto>();
-
         //Needs lock
         private static ClarifaiApiInfo _apiInfo;
         private readonly static Object ApiInfoLock = new Object();

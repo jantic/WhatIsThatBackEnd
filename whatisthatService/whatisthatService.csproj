@@ -261,6 +261,7 @@
     <Compile Include="Core\Wolfram\Response\WolframCommonNameData.cs" />
     <Compile Include="Core\Wolfram\Response\WolframTaxonomyData.cs" />
     <Compile Include="Core\Wolfram\WolframClient.cs" />
+    <Compile Include="Core\Wolfram\WolframTaxonomyToNameCache.cs" />
     <Compile Include="Core\Wolfram\WolframTagToTaxonomyCache.cs" />
     <Compile Include="DataObjects\SpeciesCandidate.cs" />
     <Compile Include="DataObjects\TodoItem.cs" />

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Web.Configuration;
 using Newtonsoft.Json;
 using RestSharp;
 using whatisthatService.Core.Classification;
-using whatisthatService.Core.Utilities.Caching;
 using whatisthatService.Core.Wolfram.Response;
 using whatisthatService.Core.Wolfram.Response.Dto;
 
@@ -19,7 +17,7 @@ namespace whatisthatService.Core.Wolfram
         private static readonly string CommonNameDataPath = WebConfigurationManager.AppSettings["wolfram_name_data_path"];
         private static readonly string TaxonomicDataPath = WebConfigurationManager.AppSettings["wolfram_taxonomy_path"];
 
-        private static readonly GenericMemoryCache<WolframResponseDto> CommonNameCache = new GenericMemoryCache<WolframResponseDto>();
+        private static readonly WolframTaxonomyToNameCache CommonNameCache = new WolframTaxonomyToNameCache();
         private static readonly WolframTagToTaxonomyCache TaxonomicDataCache = new WolframTagToTaxonomyCache();
 
         public String GetCommonNameFromScientific(TaxonomicClassification taxonomy)
@@ -30,14 +28,13 @@ namespace whatisthatService.Core.Wolfram
                 return "";
             }
 
-            var cacheKey = GenerateCommonNameCacheKey(taxonomy);
-            var cachedNameDto = CommonNameCache.Get(cacheKey);
+            var cachedNameInfo = CommonNameCache.Get(taxonomy);
 
-            if (cachedNameDto != null)
+            if (cachedNameInfo != null)
             {
-                var cachedNameData = WolframCommonNameData.GetInstance(cachedNameDto);
-                return cachedNameData.Name;
+                return cachedNameInfo.Name;
             }
+
             var parameters = new List<Parameter>();
             var genusParam = new Parameter { Name = "genus", Value = taxonomy.GetGenus(), Type = ParameterType.QueryString };
             parameters.Add(genusParam);
@@ -48,22 +45,13 @@ namespace whatisthatService.Core.Wolfram
 
             if (nameDataDto != null)
             {
-                CommonNameCache.Set(cacheKey, nameDataDto);
+                var nameData = WolframCommonNameData.GetInstance(nameDataDto);
+                CommonNameCache.Set(taxonomy, nameData);
+                return nameData.Name;
             }
 
-            var nameData = WolframCommonNameData.GetInstance(nameDataDto);
-            return nameData.Name;
+            return "";
         }
-
-        private String GenerateCommonNameCacheKey(TaxonomicClassification taxonomy)
-        {
-            var keyBuffer = new StringBuilder();
-            keyBuffer.Append(taxonomy.GetGenus());
-            keyBuffer.Append("_");
-            keyBuffer.Append(taxonomy.GetSpecies());
-            return keyBuffer.ToString();
-        }
-
         public TaxonomicClassification GetTaxonomyData(String tag)
         {
             var cachedTaxonomyData = TaxonomicDataCache.Get(tag);

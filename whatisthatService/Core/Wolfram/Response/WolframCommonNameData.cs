@@ -3,9 +3,9 @@ using whatisthatService.Core.Wolfram.Response.Dto;
 
 namespace whatisthatService.Core.Wolfram.Response
 {
-    class WolframCommonNameData
+    public class WolframCommonNameData
     {
-        public readonly static WolframCommonNameData NULL = new WolframCommonNameData(null);
+        public readonly static WolframCommonNameData NULL = new WolframCommonNameData("");
         private readonly String _name;
 
         public string Name
@@ -15,15 +15,29 @@ namespace whatisthatService.Core.Wolfram.Response
 
         public static WolframCommonNameData GetInstance(WolframResponseDto dto)
         {
-            return (dto == null || dto.Success == null || dto.Success.ToLower() != "true") ? NULL : new WolframCommonNameData(dto);
+            if (dto == null || dto.Success == null || dto.Success.ToLower() != "true")
+            {
+                return NULL;
+            }
+
+            var rawName = dto.Result.Replace("\"", "");
+            var name = String.Equals("Missing[NotAvailable]", rawName, StringComparison.InvariantCultureIgnoreCase) ? "" : rawName;
+            return GetInstance(name);
         }
 
-        private WolframCommonNameData(WolframResponseDto dto)
+        public static WolframCommonNameData GetInstance(String name)
         {
-            var name = dto != null ? dto.Result.Replace("\"", "") : "";
-            _name = String.Equals("Missing[NotAvailable]", name, StringComparison.InvariantCultureIgnoreCase)
-                ? ""
-                : name;
+            if (String.IsNullOrEmpty(name))
+            {
+                return NULL;
+            }
+
+            return new WolframCommonNameData(name);
+        }
+
+        private WolframCommonNameData(String name)
+        {
+            _name = name;
         }
     }
 }
