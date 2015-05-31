@@ -28,7 +28,8 @@ namespace whatisthatServiceTools
         private static readonly FileInfo MammalsShapeFileInfo = new FileInfo(GeographyDirectoryInfo.FullName + "/Mammals/MAMMALS.shp");
         private static readonly FileInfo AmphibiansShapeFileInfo = new FileInfo(GeographyDirectoryInfo.FullName + "/Amphibians/AMPHIBIANS.shp");
         private static readonly FileInfo ReptilesShapeFileInfo = new FileInfo(GeographyDirectoryInfo.FullName + "/Reptiles/REPTILES.shp");
-        private static readonly List<String> SupportedTaxonomicClasses = new List<String>(new[] { "mammalia", "reptilia", "amphibia" });
+        //private static readonly List<String> SupportedTaxonomicClasses = new List<String>(new[] { "mammalia", "reptilia", "amphibia" });
+        private static readonly List<String> SupportedTaxonomicClasses = new List<String>(new[] { "mammalia"});
 
         //Purpose:  To prepopulate a database table with IUCN data on geographic distribution of species, in 0.5 degree latitude/longitude intervals 
         //around the world.  The source shape files take a very long time to process, so this is effectively a caching of the end result to make
@@ -79,8 +80,8 @@ namespace whatisthatServiceTools
             using (var shapeFile = new ShapeFile(shapeFileInfo.FullName))
             {
                 shapeFile.Open();
-                const double minLatitude = -90.0;
-                const double maxLatitude = 90.0;
+                const double minLatitude = -3.5;
+                const double maxLatitude = 0.0;
                 const double maxLongitude = 180.0;
                 const double minLongitude = -180.0;
                 const double interval = 0.5;

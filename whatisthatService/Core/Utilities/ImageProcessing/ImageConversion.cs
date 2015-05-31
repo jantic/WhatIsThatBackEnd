@@ -9,10 +9,43 @@ namespace whatisthatService.Core.Utilities.ImageProcessing
 {
     public class ImageConversion
     {
+
+        public static Image StreamToImage(Stream stream)
+        {
+            try
+            {
+                var bytearray = new byte[10000];
+                int bytesRead;
+
+                do
+                {
+                    bytesRead = stream.Read(bytearray, 0, bytearray.Length);
+                } while (bytesRead > 0);
+
+                return ByteArrayToImage(bytearray);
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+
         public static Bitmap GetImageCrop(Bitmap image, Rectangle cropArea)
         {
             var cropper = new Crop(cropArea);
             return cropper.Apply(image);
+        }
+
+
+        public static Image Base64StringToImage(String base64String)
+        {
+            var bytes = Convert.FromBase64String(base64String);
+
+            using (var ms = new MemoryStream(bytes))
+            {
+                return Image.FromStream(ms);
+            }
+
         }
 
         public static byte[] ImageToPngByteArray(Bitmap image)

@@ -138,7 +138,7 @@ namespace whatisthatService.Core.Classification
                     return false;
                 }
 
-                if (myClassification != theirClassification)
+                if (!String.Equals(myClassification, theirClassification, StringComparison.InvariantCultureIgnoreCase))
                 {
                     return false;
                 }

@@ -16,8 +16,6 @@ namespace whatisthatService.Core.Classification.SpeciesFilters
             var probabilityMins = new Dictionary<String, Double>
             {
                 {"human", 0.97},
-                {"elephant", 0.96},
-                {"african elephant", 0.96},
                 {"default", 0.80}
             };
             return probabilityMins.ToImmutableDictionary();

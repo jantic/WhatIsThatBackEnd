@@ -109,6 +109,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Web.Http">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.2\lib\net45\System.Web.Http.dll</HintPath>
@@ -215,8 +218,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\SpeciesIdentifierController.cs" />
-    <Compile Include="Controllers\TodoItemController.cs" />
+    <Compile Include="Controllers\ApiInfoController.cs" />
+    <Compile Include="Controllers\IdentifySpeciesController.cs" />
     <Compile Include="Core\Clarifai\ClarifaiClient.cs" />
     <Compile Include="Core\Clarifai\Exceptions\ApiThrottleError.cs" />
     <Compile Include="Core\Clarifai\Exceptions\ExpiredTokenError.cs" />
@@ -263,8 +266,9 @@
     <Compile Include="Core\Wolfram\WolframClient.cs" />
     <Compile Include="Core\Wolfram\WolframTaxonomyToNameCache.cs" />
     <Compile Include="Core\Wolfram\WolframTagToTaxonomyCache.cs" />
+    <Compile Include="DataObjects\ApiInfo.cs" />
     <Compile Include="DataObjects\SpeciesCandidate.cs" />
-    <Compile Include="DataObjects\TodoItem.cs" />
+    <Compile Include="DataObjects\SpeciesCandidatesResult.cs" />
     <Compile Include="Models\WhatIsThatContext.cs" />
     <Compile Include="ScheduledJobs\SampleJob.cs" />
     <Compile Include="Global.asax.cs">
@@ -283,7 +287,9 @@
     <Content Include="Core\Geography\SharpMap\GeoAPI.dll" />
     <Content Include="Core\Geography\SharpMap\NetTopologySuite.dll" />
     <Content Include="Core\Geography\SharpMap\Newtonsoft.Json.dll" />
-    <Content Include="Core\Geography\SharpMap\Newtonsoft.Json.xml" />
+    <Content Include="Core\Geography\SharpMap\Newtonsoft.Json.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Core\Geography\SharpMap\PowerCollections.dll" />
     <Content Include="Core\Geography\SharpMap\ProjNet.dll" />
     <Content Include="Core\Geography\SharpMap\SharpMap.dll" />

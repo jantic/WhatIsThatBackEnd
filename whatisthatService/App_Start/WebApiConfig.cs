@@ -27,21 +27,7 @@ namespace whatisthatService
 
     public class WhatisthatInitializer : ClearDatabaseSchemaIfModelChanges<WhatIsThatContext>
     {
-        protected override void Seed(WhatIsThatContext context)
-        {
-            var todoItems = new List<TodoItem>
-            {
-                new TodoItem { Id = Guid.NewGuid().ToString(), Text = "First item", Complete = false },
-                new TodoItem { Id = Guid.NewGuid().ToString(), Text = "Second item", Complete = false },
-            };
 
-            foreach (var todoItem in todoItems)
-            {
-                context.Set<TodoItem>().Add(todoItem);
-            }
-
-            base.Seed(context);
-        }
     }
 }
 

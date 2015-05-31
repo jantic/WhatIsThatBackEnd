@@ -30,7 +30,8 @@ namespace whatisthatService.Core.Classification.SpeciesFilters
                 if (matchName.Contains(tag)
                     || tag.Contains(matchName))
                 {
-                    if (nameFilteredBestMatches.Find(speciesInfo => speciesInfo.GetName().Equals(match.GetName())) == null)
+                    if (nameFilteredBestMatches.Find(speciesInfo => 
+                        speciesInfo.GetName().Equals(match.GetName(), StringComparison.InvariantCultureIgnoreCase)) == null)
                     {
                         nameFilteredBestMatches.Add(match);
                     }

@@ -92,29 +92,30 @@ namespace whatisthatService.Core.Classification
             return speciesInfos.Count > 0 ? speciesInfos.First() : SpeciesInfo.NULL;
         }
 
-        public Int32 GetMinImageWidth()
+        public Int32 GetMaxImageSize()
+        {
+            //Double because of the multisampling crops, to maximize potential accuracy
+            return Convert.ToInt32(Math.Ceiling(_clarifaiClient.GetApiInfo().MaxImageSize*2.0));
+        }
+
+        public Int32 GetMinImageSize()
         {
             return Convert.ToInt32(Math.Ceiling(MinImageSizeMultiplier*_clarifaiClient.GetApiInfo().MinImageSize));
         }
 
-        public Int32 GetMinImageHeight()
-        {
-            return Convert.ToInt32(Math.Ceiling(MinImageSizeMultiplier * _clarifaiClient.GetApiInfo().MinImageSize));
-        }
-
         private void ValidateImage(Image image)
         {
-            if (image.Width >= GetMinImageWidth() && image.Height >= GetMinImageHeight()) return;
-            var message = "Image is too small!  Min width is " + GetMinImageWidth() + " and min height is " +
-                          GetMinImageHeight();
+            if (image.Width >= GetMinImageSize() && image.Height >= GetMinImageSize()) return;
+            var message = "Image is too small!  Min width is " + GetMinImageSize() + " and min height is " +
+                          GetMinImageSize();
             throw new ApplicationException(message);
         }
 
         private void ValidateCropArea(Rectangle cropArea)
         {
-            if (cropArea.Width >= GetMinImageWidth() && cropArea.Height >= GetMinImageHeight()) return;
-            var message = "Crop area is too small!  Min width is " + GetMinImageWidth() + " and min height is " +
-                          GetMinImageHeight();
+            if (cropArea.Width >= GetMinImageSize() && cropArea.Height >= GetMinImageSize()) return;
+            var message = "Crop area is too small!  Min width is " + GetMinImageSize() + " and min height is " +
+                          GetMinImageSize();
             throw new ApplicationException(message);
         }
 
