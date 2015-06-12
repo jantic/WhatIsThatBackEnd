@@ -94,8 +94,7 @@ namespace whatisthatService.Core.Classification
 
         public Int32 GetMaxImageSize()
         {
-            //Double because of the multisampling crops, to maximize potential accuracy
-            return Convert.ToInt32(Math.Ceiling(_clarifaiClient.GetApiInfo().MaxImageSize*2.0));
+            return Convert.ToInt32(Math.Ceiling(_clarifaiClient.GetApiInfo().MaxImageSize*1.0));
         }
 
         public Int32 GetMinImageSize()
@@ -107,14 +106,6 @@ namespace whatisthatService.Core.Classification
         {
             if (image.Width >= GetMinImageSize() && image.Height >= GetMinImageSize()) return;
             var message = "Image is too small!  Min width is " + GetMinImageSize() + " and min height is " +
-                          GetMinImageSize();
-            throw new ApplicationException(message);
-        }
-
-        private void ValidateCropArea(Rectangle cropArea)
-        {
-            if (cropArea.Width >= GetMinImageSize() && cropArea.Height >= GetMinImageSize()) return;
-            var message = "Crop area is too small!  Min width is " + GetMinImageSize() + " and min height is " +
                           GetMinImageSize();
             throw new ApplicationException(message);
         }
